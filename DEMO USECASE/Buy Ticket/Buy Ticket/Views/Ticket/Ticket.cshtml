@@ -1,0 +1,81 @@
+@model Buy_Ticket.Models.TicketResultViewModel
+@{
+    ViewData["Title"] = "Ticket";
+    var qrPayloadJson = System.Text.Json.JsonSerializer.Serialize(Model.QrCode);
+}
+
+<section class="success-page">
+    <header class="success-topnav">
+        <span class="success-topnav-brand">CityTransit</span>
+        <div class="success-topnav-lang" role="group" aria-label="Language">
+            <svg class="success-topnav-globe" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>English / Tiếng Việt</span>
+        </div>
+    </header>
+
+    <div class="success-main">
+        <div class="success-blur" aria-hidden="true"></div>
+
+        <div class="success-shell">
+            <div class="success-hero-wrap">
+                <div class="success-hero">
+                    <svg width="100" height="100" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M20 7L9 18L4 13" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <article class="success-card">
+                <h1 class="success-title">Ticket Confirmed</h1>
+                <p class="success-subtitle">Your ticket has been generated successfully.</p>
+
+                <div class="success-grid">
+                    <div class="success-box">
+                        <span>TICKET NO</span>
+                        <strong>@Model.TicketNo</strong>
+                    </div>
+                    <div class="success-box">
+                        <span>PAYMENT REF</span>
+                        <strong>@Model.PaymentRef</strong>
+                    </div>
+                </div>
+
+                <div class="success-details">
+                    <div class="success-row"><span>Destination</span><strong>@Model.DestinationName</strong></div>
+                    <div class="success-row"><span>Date / Time</span><strong>@Model.DateText - @Model.DepartureTime</strong></div>
+                    <div class="success-row"><span>Quantity</span><strong>@Model.Quantity</strong></div>
+                    <div class="success-row success-row--total"><span>Total</span><strong>@Model.TotalPrice.ToString("N0") VND</strong></div>
+                </div>
+
+                <div class="success-qr">
+                    <div id="success-qrcode" class="success-qrcode-canvas" role="img" aria-label="Ticket QR code"></div>
+                </div>
+
+                <a class="success-btn" asp-action="Welcome">Back to Home</a>
+            </article>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        (function () {
+            var el = document.getElementById('success-qrcode');
+            if (!el || typeof QRCode === 'undefined') return;
+            var payload = @Html.Raw(qrPayloadJson);
+            new QRCode(el, {
+                text: payload,
+                width: 120,
+                height: 120,
+                colorDark: '#1a1c1c',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        })();
+    </script>
+}

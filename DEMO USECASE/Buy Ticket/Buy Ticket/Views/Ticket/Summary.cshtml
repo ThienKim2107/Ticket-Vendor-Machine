@@ -1,0 +1,90 @@
+@model Buy_Ticket.Models.TicketSummaryViewModel
+@{
+    ViewData["Title"] = "Summary";
+}
+
+<section class="price-page">
+    <header class="price-topnav">
+        <span class="price-topnav-brand">CityTransit</span>
+        <div class="price-topnav-lang" role="group" aria-label="Language">
+            <svg class="price-topnav-globe" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>English / Tiếng Việt</span>
+        </div>
+    </header>
+
+    <div class="price-main">
+        <a class="price-back" asp-action="SelectTrip" asp-route-destinationId="@Model.DestinationId">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back
+        </a>
+
+        <div class="price-head">
+            <h1 class="price-title">Summary</h1>
+            <p class="price-subtitle">Review your trip details before finalizing payment.</p>
+        </div>
+
+        <article class="price-ticket-card">
+            <div class="price-ticket-icon" aria-hidden="true">🎫</div>
+            <div class="price-ticket-flow">
+                <div class="price-stop">
+                    <span class="price-stop-dot price-stop-dot--outline"></span>
+                    <div>
+                        <span class="price-stop-label">FROM</span>
+                        <h3>@Model.From</h3>
+                    </div>
+                </div>
+                <div class="price-stop-connector"></div>
+                <div class="price-stop">
+                    <span class="price-stop-dot"></span>
+                    <div>
+                        <span class="price-stop-label">TO</span>
+                        <h3>@Model.DestinationName</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="price-ticket-meta">
+                <div>
+                    <span class="price-meta-label">DATE</span>
+                    <strong>@Model.DateText</strong>
+                </div>
+                <div>
+                    <span class="price-meta-label">DEPARTURE</span>
+                    <strong>@Model.DepartureTime</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="price-total-card">
+            <div class="price-qty-row">
+                <h3>Quantity</h3>
+                <div class="price-qty-readonly"><span>@Model.Quantity</span><small>TICKETS</small></div>
+            </div>
+            <div class="price-line">
+                <span>Price per ticket</span>
+                <span>@Model.UnitPrice.ToString("N0") VND</span>
+            </div>
+            <div class="price-line price-line--total">
+                <span>Total Price</span>
+                <strong>@Model.TotalPrice.ToString("N0") VND</strong>
+            </div>
+        </article>
+
+        <form asp-action="Confirm" method="post" class="price-cta-wrap">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="DestinationId" />
+            <input type="hidden" asp-for="TripId" />
+            <input type="hidden" asp-for="Quantity" />
+            <button type="submit" class="price-cta-btn">
+                <span>Continue to Payment</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </form>
+    </div>
+
+    <a class="price-cancel" asp-action="SelectDestination">Cancel</a>
+</section>

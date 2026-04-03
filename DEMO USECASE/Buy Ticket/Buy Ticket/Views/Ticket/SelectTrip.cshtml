@@ -1,0 +1,250 @@
+@model IReadOnlyList<Buy_Ticket.Models.TripViewModel>
+@{
+    ViewData["Title"] = "Select Trip";
+    var destination = ViewBag.Destination as Buy_Ticket.Models.DestinationViewModel;
+    var destName = destination?.Name ?? "Destination";
+    var destinationId = destination?.Id ?? 0;
+    var trips = Model.ToList();
+    string OpName(int id) => (id % 3) switch { 0 => "Vip Express", 1 => "Standard Line", _ => "Green Bus" };
+    string CtCode(int id) => $"CT-{800 + id}";
+    string MockDuration(int id) => (id % 4) switch { 0 => "2h 30m", 1 => "3h 15m", 2 => "2h 45m", _ => "4h 00m" };
+    string MockArrival(Buy_Ticket.Models.TripViewModel t) => t.Id switch
+    {
+        1 => "01:30 PM",
+        2 => "04:15 PM",
+        3 => "09:45 PM",
+        4 => "12:30 PM",
+        5 => "02:50 PM",
+        6 => "11:10 AM",
+        7 => "03:20 PM",
+        _ => "06:00 PM"
+    };
+}
+
+<section class="trip-page">
+    <header class="trip-topnav">
+        <span class="trip-topnav-brand">CityTransit</span>
+        <div class="trip-topnav-lang" role="group" aria-label="Language">
+            <svg class="trip-topnav-globe" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>English / Tiếng Việt</span>
+        </div>
+    </header>
+
+    <div class="trip-canvas">
+        <div class="trip-main">
+            <a class="trip-back" asp-action="SelectDestination">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Back
+            </a>
+
+            <div class="trip-section-head">
+                <h1 class="trip-h1">Select Your Trip</h1>
+                <p class="trip-lead">Available departures for Mien Dong Bus Station to @destName</p>
+            </div>
+
+            <div class="trip-list" id="trip-list" role="list">
+                @for (var i = 0; i < trips.Count; i++)
+                {
+                    var trip = trips[i];
+                    var op = OpName(trip.Id);
+                    var code = CtCode(trip.Id);
+                    var dur = MockDuration(trip.Id);
+                    var arr = MockArrival(trip);
+                    var selected = i == 0;
+                    <article class="trip-offer @(selected ? "trip-offer--selected" : "")"
+                             role="listitem"
+                             data-trip-id="@trip.Id"
+                             data-price="@trip.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                             data-departure="@trip.DepartureTime"
+                             data-duration="@dur"
+                             tabindex="0">
+                        @if (selected)
+                        {
+                            <span class="trip-offer-check" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                        }
+                        <div class="trip-offer-top">
+                            <div class="trip-offer-left">
+                                <p class="trip-offer-operator">@op • @code</p>
+                                <div class="trip-offer-meta">
+                                    <svg class="trip-offer-cal" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="#414754" stroke-width="1.5"/><path d="M8 3V7M16 3V7M3 11H21" stroke="#414754" stroke-width="1.5"/></svg>
+                                    <span>@trip.DateText</span>
+                                </div>
+                            </div>
+                            <div class="trip-offer-price">
+                                <span class="trip-offer-price-main">@trip.Price.ToString("N0")₫</span>
+                                <span class="trip-offer-price-sub">per ticket</span>
+                            </div>
+                        </div>
+                        <div class="trip-offer-rail @(selected ? "trip-offer-rail--active" : "")">
+                            <div class="trip-offer-times">
+                                <div>
+                                    <span class="trip-offer-time-big">@trip.DepartureTime</span>
+                                    <span class="trip-offer-time-label">Departure</span>
+                                </div>
+                                <div class="trip-offer-times-end">
+                                    <span class="trip-offer-time-big">@arr</span>
+                                    <span class="trip-offer-time-label">Arrival (est.)</span>
+                                </div>
+                            </div>
+                            <div class="trip-timeline">
+                                <span class="trip-timeline-line" aria-hidden="true"></span>
+                                <span class="trip-timeline-dot trip-timeline-dot--a"></span>
+                                <span class="trip-timeline-pill">@dur</span>
+                                <span class="trip-timeline-dot trip-timeline-dot--b"></span>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
+
+        <aside class="trip-panel" aria-label="Booking details">
+            <div class="trip-panel-inner">
+                <div class="trip-panel-block">
+                    <h2 class="trip-panel-title">Booking Details</h2>
+                    <div class="trip-panel-tickets">
+                        <label class="trip-panel-label" for="trip-qty">Number of Tickets (Max 5)</label>
+                        <div class="trip-stepper">
+                            <button type="button" class="trip-step-btn" id="trip-qty-minus" aria-label="Decrease tickets">−</button>
+                            <span class="trip-step-value" id="trip-qty-display">1</span>
+                            <button type="button" class="trip-step-btn trip-step-btn--plus" id="trip-qty-plus" aria-label="Increase tickets">+</button>
+                        </div>
+                        <input type="hidden" id="trip-qty" value="1" min="1" max="5" />
+                    </div>
+                </div>
+
+                <hr class="trip-panel-hr" />
+
+                <div class="trip-panel-pricing" id="trip-pricing">
+                    <div class="trip-price-row">
+                        <span>Subtotal</span>
+                        <span id="trip-line-sub">0₫</span>
+                    </div>
+                    <div class="trip-price-row">
+                        <span>Tickets</span>
+                        <span id="trip-line-qty" class="trip-price-accent">1</span>
+                    </div>
+                    <div class="trip-price-total">
+                        <span class="trip-price-total-label">Total</span>
+                        <div class="trip-price-total-right">
+                            <span class="trip-price-total-amt" id="trip-line-total">0₫</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="trip-continue" id="trip-continue">Continue to Summary</button>
+
+            </div>
+        </aside>
+    </div>
+
+    <a class="trip-cancel" asp-action="SelectDestination">Cancel</a>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var summaryUrl = '@Url.Action("Summary", "Ticket")';
+            var destinationId = @destinationId;
+            var offers = document.querySelectorAll('.trip-offer');
+            var qtyEl = document.getElementById('trip-qty');
+            var qtyDisp = document.getElementById('trip-qty-display');
+            var subEl = document.getElementById('trip-line-sub');
+            var qtyLine = document.getElementById('trip-line-qty');
+            var totalEl = document.getElementById('trip-line-total');
+            var selected = document.querySelector('.trip-offer--selected');
+            var minBtn = document.getElementById('trip-qty-minus');
+            var plusBtn = document.getElementById('trip-qty-plus');
+            var continueBtn = document.getElementById('trip-continue');
+
+            function parsePrice(el) {
+                return parseFloat(el.getAttribute('data-price') || '0');
+            }
+
+            function formatVnd(n) {
+                return Math.round(n).toLocaleString('vi-VN') + '₫';
+            }
+
+            function getSelected() {
+                return document.querySelector('.trip-offer--selected') || offers[0];
+            }
+
+            function setQty(q) {
+                q = Math.max(1, Math.min(5, q));
+                qtyEl.value = q;
+                qtyDisp.textContent = q;
+                updatePricing();
+            }
+
+            function updatePricing() {
+                var card = getSelected();
+                if (!card) return;
+                var unit = parsePrice(card);
+                var q = parseInt(qtyEl.value, 10) || 1;
+                var sub = unit * q;
+                subEl.textContent = formatVnd(sub);
+                qtyLine.textContent = q;
+                totalEl.textContent = formatVnd(sub);
+            }
+
+            function selectCard(card) {
+                offers.forEach(function (c) {
+                    c.classList.remove('trip-offer--selected');
+                    c.setAttribute('aria-pressed', 'false');
+                    var chk = c.querySelector('.trip-offer-check');
+                    if (chk) chk.remove();
+                });
+                card.classList.add('trip-offer--selected');
+                card.setAttribute('aria-pressed', 'true');
+                var mark = document.createElement('span');
+                mark.className = 'trip-offer-check';
+                mark.setAttribute('aria-hidden', 'true');
+                mark.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                card.insertBefore(mark, card.firstChild);
+                var rail = card.querySelector('.trip-offer-rail');
+                offers.forEach(function (c) {
+                    var r = c.querySelector('.trip-offer-rail');
+                    if (r) r.classList.toggle('trip-offer-rail--active', c === card);
+                });
+                updatePricing();
+            }
+
+            offers.forEach(function (card) {
+                card.addEventListener('click', function () { selectCard(card); });
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectCard(card);
+                    }
+                });
+            });
+
+            minBtn.addEventListener('click', function () {
+                setQty(parseInt(qtyEl.value, 10) - 1);
+            });
+            plusBtn.addEventListener('click', function () {
+                setQty(parseInt(qtyEl.value, 10) + 1);
+            });
+
+            continueBtn.addEventListener('click', function () {
+                var card = getSelected();
+                if (!card || !destinationId) return;
+                var tripId = card.getAttribute('data-trip-id');
+                var q = qtyEl.value;
+                window.location.href = summaryUrl
+                    + '?destinationId=' + encodeURIComponent(destinationId)
+                    + '&tripId=' + encodeURIComponent(tripId)
+                    + '&quantity=' + encodeURIComponent(q);
+            });
+
+            if (selected) selected.setAttribute('aria-pressed', 'true');
+            setQty(parseInt(qtyEl.value, 10) || 1);
+        })();
+    </script>
+}

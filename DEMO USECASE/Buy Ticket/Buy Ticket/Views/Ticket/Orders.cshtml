@@ -1,0 +1,58 @@
+@model IReadOnlyList<Buy_Ticket.Data.Entities.TicketOrder>
+@{
+    ViewData["Title"] = "Report — Ticket Orders";
+}
+
+<section class="screen">
+    <div class="topbar">
+        <div class="brand">CityTransit</div>
+        <div class="lang">EN</div>
+    </div>
+
+    <div class="content">
+        <a class="back-link" asp-action="Welcome">← Back</a>
+        <h1>Ticket orders (SQL)</h1>
+        <p>Danh sách vé đã lưu trong bảng <code>TicketOrders</code>.</p>
+
+        @if (Model.Count == 0)
+        {
+            <p>Chưa có đơn nào. Hãy mua vé qua luồng Buy Ticket.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>TicketNo</th>
+                            <th>PaymentRef</th>
+                            <th>Destination</th>
+                            <th>Date / Time</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                            <th>Created (UTC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model)
+                        {
+                            <tr>
+                                <td>@o.Id</td>
+                                <td>@o.TicketNo</td>
+                                <td>@o.PaymentRef</td>
+                                <td>@o.DestinationName</td>
+                                <td>@o.DateText — @o.DepartureTime</td>
+                                <td>@o.Quantity</td>
+                                <td>@o.TotalPrice.ToString("N0") VND</td>
+                                <td>@o.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <a class="btn-main" asp-action="SelectDestination">Buy ticket</a>
+    </div>
+</section>

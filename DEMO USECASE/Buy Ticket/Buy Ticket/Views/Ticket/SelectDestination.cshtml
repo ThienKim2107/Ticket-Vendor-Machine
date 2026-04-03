@@ -1,0 +1,112 @@
+@model IReadOnlyList<Buy_Ticket.Models.DestinationViewModel>
+@{
+    ViewData["Title"] = "Select Destination";
+    var featured = Model.FirstOrDefault(d => d.Name.Contains("District 1", StringComparison.OrdinalIgnoreCase))
+        ?? Model.FirstOrDefault();
+    var grid = featured is null
+        ? Model.ToList()
+        : Model.Where(d => d.Id != featured.Id).OrderBy(d => d.Id).ToList();
+}
+
+<section class="dest-page">
+    <header class="dest-topnav">
+        <span class="dest-topnav-brand">City Transit</span>
+        <div class="dest-topnav-lang" role="group" aria-label="Language">
+            <svg class="dest-topnav-globe" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M2 12H22" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>EN</span>
+        </div>
+    </header>
+
+    <div class="dest-main">
+        <a class="dest-back" asp-action="Welcome">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back
+        </a>
+
+        <div class="dest-headline">
+            <h1 class="dest-title">Select Destination</h1>
+            <p class="dest-subtitle">Choose your arrival point or search for a specific location.</p>
+        </div>
+
+        <div class="dest-search" role="search">
+            <svg class="dest-search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75"/>
+                <path d="M16 16L20 20" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            </svg>
+            <input class="dest-search-input" type="search" name="q" autocomplete="off" placeholder="Where would you like to go?" aria-label="Search destination" />
+        </div>
+
+        @if (featured is not null)
+        {
+            <div class="dest-bento-top">
+                <article class="dest-featured">
+                    <div class="dest-featured-bg" aria-hidden="true"></div>
+                    <div class="dest-featured-inner">
+                        <div class="dest-featured-copy">
+                            <div class="dest-popular-badge">
+                                <span class="dest-popular-star" aria-hidden="true">★</span>
+                                <span>POPULAR NOW</span>
+                            </div>
+                            <h2 class="dest-featured-title">@featured.Name</h2>
+                            <p class="dest-featured-desc">@featured.Description</p>
+                        </div>
+                        <a class="dest-featured-go" asp-action="SelectTrip" asp-route-destinationId="@featured.Id" aria-label="Select @featured.Name">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        }
+
+        <div class="dest-grid" id="dest-grid">
+            @foreach (var destination in grid)
+            {
+                <a class="dest-card" asp-action="SelectTrip" asp-route-destinationId="@destination.Id" data-name="@destination.Name">
+                    <div class="dest-card-icon-wrap" aria-hidden="true">
+                        <span class="dest-card-emoji">@destination.Icon</span>
+                    </div>
+                    <div class="dest-card-text">
+                        <h3 class="dest-card-title">@destination.Name</h3>
+                        <p class="dest-card-desc">@destination.Description</p>
+                    </div>
+                    <span class="dest-card-chevron" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                </a>
+            }
+        </div>
+
+        <div class="dest-nearby">
+            <h3 class="dest-nearby-label">Nearby hubs</h3>
+            <div class="dest-chips" role="list">
+                <span class="dest-chip" role="listitem">Landmark 81</span>
+                <span class="dest-chip" role="listitem">Ben Thanh Market</span>
+                <span class="dest-chip" role="listitem">Notre Dame Cathedral</span>
+                <span class="dest-chip" role="listitem">Independence Palace</span>
+            </div>
+        </div>
+    </div>
+
+    <a class="dest-cancel" asp-action="Welcome">Cancel</a>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var input = document.querySelector('.dest-search-input');
+            var grid = document.getElementById('dest-grid');
+            if (!input || !grid) return;
+            input.addEventListener('input', function () {
+                var q = (input.value || '').trim().toLowerCase();
+                grid.querySelectorAll('.dest-card').forEach(function (a) {
+                    var n = (a.getAttribute('data-name') || '').toLowerCase();
+                    a.style.display = !q || n.indexOf(q) >= 0 ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+}
